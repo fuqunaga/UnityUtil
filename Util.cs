@@ -141,14 +141,14 @@ public class KeepTimeFlag {
 	
 	public float switchTime =  5f;
 	bool flag = false;
-	float startTime = 0f;
+	float? startTime;
 
 	public KeepTimeFlag(float switchTime = 5f){ this.switchTime = switchTime; }
 
 	public void Set(bool f)
 	{
 		if ( f ) {
-			if ( startTime <= 0f ) startTime = Time.time;
+			if ( !startTime.HasValue ) startTime = Time.time;
 			if ( (Time.time - startTime) >= switchTime )
 			{
 				flag = f;
@@ -156,7 +156,7 @@ public class KeepTimeFlag {
 		}
 		else {
 			flag = f;
-			startTime = 0f;
+			startTime = null;
 		}
 	}
 
@@ -167,12 +167,23 @@ public class KeepTimeFlag {
 
 	public void Clear(){ Set(false); }
 
-	public bool Check(){ Set(true); return Get(); }
+	public bool Check(float offset=0f){ 
+        Set(true);
+        return offset == 0f ? Get() : (Time.time - startTime) >= (switchTime + offset);
+    }
 	public void Reset(){ Set(false); Set(true); }
 
 	public static implicit operator bool(KeepTimeFlag x){ return x.Get(); }
 	//public static operator bool(KeepTimeFlag x){return x; }
-	public bool raw{ get{ return startTime > 0f;} }
+	public bool raw{ get{ return startTime.HasValue;} }
+
+    // ‚ ‚Æremain•b‚ÅTrue‚É‚È‚é‚æ‚¤‚É‹­§
+    public void SetRemain(float remain)
+    {
+        // Time.time+remain - startTime > switchTime
+        // ‚æ‚è Time.time+remain - switchTime > startTime
+        startTime = Time.time + remain - switchTime; ;
+    }
 }
 
 
