@@ -141,14 +141,14 @@ public class KeepTimeFlag {
 	
 	public float switchTime =  5f;
 	bool flag = false;
-	float startTime = 0f;
+	float? startTime;
 
 	public KeepTimeFlag(float switchTime = 5f){ this.switchTime = switchTime; }
 
 	public void Set(bool f)
 	{
 		if ( f ) {
-			if ( startTime <= 0f ) startTime = Time.time;
+			if ( !startTime.HasValue ) startTime = Time.time;
 			if ( (Time.time - startTime) >= switchTime )
 			{
 				flag = f;
@@ -156,7 +156,7 @@ public class KeepTimeFlag {
 		}
 		else {
 			flag = f;
-			startTime = 0f;
+			startTime = null;
 		}
 	}
 
@@ -167,12 +167,23 @@ public class KeepTimeFlag {
 
 	public void Clear(){ Set(false); }
 
-	public bool Check(){ Set(true); return Get(); }
+	public bool Check(float offset=0f){ 
+        Set(true);
+        return offset == 0f ? Get() : (Time.time - startTime) >= (switchTime + offset);
+    }
 	public void Reset(){ Set(false); Set(true); }
 
 	public static implicit operator bool(KeepTimeFlag x){ return x.Get(); }
 	//public static operator bool(KeepTimeFlag x){return x; }
-	public bool raw{ get{ return startTime > 0f;} }
+	public bool raw{ get{ return startTime.HasValue;} }
+
+    // ‚ ‚Æremain•b‚ÅTrue‚É‚È‚é‚æ‚¤‚É‹­§
+    public void SetRemain(float remain)
+    {
+        // Time.time+remain - startTime > switchTime
+        // ‚æ‚è Time.time+remain - switchTime > startTime
+        startTime = Time.time + remain - switchTime; ;
+    }
 }
 
 
@@ -189,60 +200,6 @@ public class Stopwatch
 	public void Check(){ interval = count; last=Time.time;}
 	public bool IsStarted(){ return last > 0f; }
 	public float count{ get{ return Time.time -last;}}
-}
-
-static public class TransformExtension
-{
-	static public List<T> GetComponentsAll<T>(this Transform trans) where T : Component
-	{
-		var ret = Enumerable.Range(0, trans.childCount)
-			.SelectMany(i => trans.GetChild(i).GetComponentsAll<T>())
-			.ToList();
-
-
-		ret.AddRange(trans.GetComponents<T>());
-		return ret;
-	}
-
-    static public List<Transform> GetChildren(this Transform trans)
-    {
-        var num = trans.childCount;
-        var ret = new List<Transform>(num);
-        for(var i=0; i<num; ++i) ret.Add(trans.GetChild(i));
-        return ret;
-    }
-}
-
-static class PlayerPrefsUtil
-{
-	static public Rect GetRect(string key){ return GetRect (key, new Rect ()); }
-	static public Rect GetRect(string key, Rect defaultValue)
-	{
-		return new Rect(
-			PlayerPrefs.GetFloat(key + "RectX"      , defaultValue.x     ) ,
-			PlayerPrefs.GetFloat(key + "RectY"      , defaultValue.y     ) ,
-			PlayerPrefs.GetFloat(key + "RectWidth"  , defaultValue.width ) ,
-			PlayerPrefs.GetFloat(key + "RectHeight" , defaultValue.height) 
-			);
-	}
-
-	static public void SetRect(string key, Rect rect)
-	{
-		PlayerPrefs.SetFloat(key + "RectX"     , rect.x   ); 
-		PlayerPrefs.SetFloat(key + "RectY"     , rect.y    ); 
-		PlayerPrefs.SetFloat(key + "RectWidth" , rect.width  ); 
-		PlayerPrefs.SetFloat(key + "RectHeight", rect.height );
-	}
-}
-
-static public class IntExtension {
-	static public void times(this int a, System.Action action)
-	{
-		for(var i=0; i<a; ++i)
-		{
-			action();
-		}
-	}
 }
 
 public class LazyHolder<T>

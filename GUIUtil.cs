@@ -65,12 +65,22 @@ public static class GUIUtil
         }
     }
 
-    public static T Field<T>(T v, string label = "") where T : IConvertible
+    public static T Field<T>(T v, string label = "")// where T : IConvertible
     {
         var type = typeof(T);
         Func<T> func = (Func<T>)(() => (T)Convert.ChangeType(GUILayout.TextField(v.ToString()), type));
 
-        if (type == typeof(bool)) func = (Func<T>)(() => (T)Convert.ChangeType(GUILayout.Toggle(Convert.ToBoolean(v), ""), type));
+        if (type == typeof(bool))    func = (Func<T>)(() => (T)Convert.ChangeType(GUILayout.Toggle(Convert.ToBoolean(v), ""), type));
+        if (type == typeof(Vector2))
+        {
+            func = (Func<T>)(() =>
+                {
+                    var vVec2 = (Vector2)Convert.ChangeType(v, type);
+                    vVec2.x = Field(vVec2.x);
+                    vVec2.y = Field(vVec2.y);
+                    return (T)Convert.ChangeType(vVec2, type);
+                });
+        }
         else if (type.IsEnum) func = (Func<T>)(() =>
         {
             var values = Enum.GetValues(type).OfType<T>().Select(value => value.ToString()).ToArray();
@@ -109,12 +119,6 @@ public static class GUIUtil
         });
 
         return ret;
-    }
-
-    public static Vector2 Vector2(Vector2 v, string label = "")
-    {
-        if (!string.IsNullOrEmpty(label)) GUILayout.Label(label);
-        return new Vector2(Field(v.x), Field(v.y));
     }
 }
 
