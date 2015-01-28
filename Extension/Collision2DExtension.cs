@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Linq;
 
-static public class Collision2DExtensions {
+static public class Collision2DExtension {
 	
 	static public Vector2 GetMeanNormal(this Collision2D a)
 	{

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class SubTreeTest : MonoBehaviour {
+public class PrefsParam : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {

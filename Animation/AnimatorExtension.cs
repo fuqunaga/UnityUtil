@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Linq;
 
-static public class AnimatorExtensions {
+static public class AnimatorExtension {
 	
 	static public bool IsStateFinished(this Animator a, string layerAndStateName, bool playIfNot = false)
 	{

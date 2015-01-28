@@ -120,12 +120,6 @@ public static class GUIUtil
 
         return ret;
     }
-
-    public static Vector2 Vector2(Vector2 v, string label = "")
-    {
-        if (!string.IsNullOrEmpty(label)) GUILayout.Label(label);
-        return new Vector2(Field(v.x), Field(v.y));
-    }
 }
 
 

@@ -202,60 +202,6 @@ public class Stopwatch
 	public float count{ get{ return Time.time -last;}}
 }
 
-static public class TransformExtension
-{
-	static public List<T> GetComponentsAll<T>(this Transform trans) where T : Component
-	{
-		var ret = Enumerable.Range(0, trans.childCount)
-			.SelectMany(i => trans.GetChild(i).GetComponentsAll<T>())
-			.ToList();
-
-
-		ret.AddRange(trans.GetComponents<T>());
-		return ret;
-	}
-
-    static public List<Transform> GetChildren(this Transform trans)
-    {
-        var num = trans.childCount;
-        var ret = new List<Transform>(num);
-        for(var i=0; i<num; ++i) ret.Add(trans.GetChild(i));
-        return ret;
-    }
-}
-
-static class PlayerPrefsUtil
-{
-	static public Rect GetRect(string key){ return GetRect (key, new Rect ()); }
-	static public Rect GetRect(string key, Rect defaultValue)
-	{
-		return new Rect(
-			PlayerPrefs.GetFloat(key + "RectX"      , defaultValue.x     ) ,
-			PlayerPrefs.GetFloat(key + "RectY"      , defaultValue.y     ) ,
-			PlayerPrefs.GetFloat(key + "RectWidth"  , defaultValue.width ) ,
-			PlayerPrefs.GetFloat(key + "RectHeight" , defaultValue.height) 
-			);
-	}
-
-	static public void SetRect(string key, Rect rect)
-	{
-		PlayerPrefs.SetFloat(key + "RectX"     , rect.x   ); 
-		PlayerPrefs.SetFloat(key + "RectY"     , rect.y    ); 
-		PlayerPrefs.SetFloat(key + "RectWidth" , rect.width  ); 
-		PlayerPrefs.SetFloat(key + "RectHeight", rect.height );
-	}
-}
-
-static public class IntExtension {
-	static public void times(this int a, System.Action action)
-	{
-		for(var i=0; i<a; ++i)
-		{
-			action();
-		}
-	}
-}
-
 public class LazyHolder<T>
 {
 	T _value;
