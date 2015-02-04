@@ -10,4 +10,13 @@ static public class IntExtension
             action();
         }
     }
+
+    static public void times(this int a, System.Action<int> action)
+    {
+        for (var i = 0; i < a; ++i)
+        {
+            action(i);
+        }
+    }
+
 }
