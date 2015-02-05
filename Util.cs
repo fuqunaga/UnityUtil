@@ -111,6 +111,22 @@ static class Util {
 
         return ret;
     }
+
+
+    [System.Serializable]
+    public class Stopwatch
+    {
+        public float last;
+        public float interval = 0f;
+        bool real = false;
+        float time { get { return real ? Time.realtimeSinceStartup : Time.time; } }
+
+        public Stopwatch(bool start = true) { if (start) Start(); }
+        public void Start() { if (!IsStarted()) last = Time.time; }
+        public void Check() { interval = count; last = Time.time; }
+        public bool IsStarted() { return last > 0f; }
+        public float count { get { return Time.time - last; } }
+    }
 }
 
 
@@ -184,22 +200,6 @@ public class KeepTimeFlag {
         // ‚æ‚è Time.time+remain - switchTime > startTime
         startTime = Time.time + remain - switchTime; ;
     }
-}
-
-
-[System.Serializable]
-public class Stopwatch
-{
-	public float last;
-	public float interval = 0f;
-	bool real = false;
-	float time{ get{return real ? Time.realtimeSinceStartup : Time.time; } }
-
-	public Stopwatch(bool start = true){ if ( start ) Start(); }
-	public void Start(){ if (!IsStarted()) last = Time.time; }
-	public void Check(){ interval = count; last=Time.time;}
-	public bool IsStarted(){ return last > 0f; }
-	public float count{ get{ return Time.time -last;}}
 }
 
 public class LazyHolder<T>
