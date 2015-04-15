@@ -7,7 +7,7 @@ public class RandomStartAnimator : MonoBehaviour {
 	void Start () {
 		var animator = GetComponent<Animator>();
 		var info = animator.GetCurrentAnimatorStateInfo(0);
-		animator.Play(info.nameHash, 0, Random.value);
+		animator.Play(info.fullPathHash, 0, Random.value);
 	}
 
 }
