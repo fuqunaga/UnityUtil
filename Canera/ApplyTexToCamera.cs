@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+[ExecuteInEditMode]
 public class ApplyTexToCamera : MonoBehaviour {
 
 	public RenderTexture filterTex;
