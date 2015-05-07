@@ -7,25 +7,49 @@ using System.Linq;
 [RequireComponent(typeof(Camera))]
 public class MultiCameraToCamera : MonoBehaviour
 {
-    public List<Camera> cameras;
+    public enum BlendOp
+    {
+        None = -1,
+        Add,
+        Blend
+    };
+
+    [System.Serializable]
+    public class Data
+    {
+        public Camera camera;
+        public BlendOp blend;
+    }
+
     public Material material;
+    public List<Data> datas;
+
 
     void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        var texs = (from c in cameras
-                    where c.targetTexture != null
-                    select c.targetTexture
-                ).ToList();
+        var list = (from d in datas
+                    where d.camera != null && d.camera.targetTexture != null
+                    where d.blend != BlendOp.None
+                    select d
+                    ).ToList();
 
-
-        if (texs.Any())
+        if ( list.Any() )
         {
-            texs.ForEach(t =>
+            var tmp = RenderTexture.GetTemporary(src.width, src.height, src.depth, src.format);
+            var tmpDest = tmp;
+
+            list.ForEach(d =>
             {
-                material.SetTexture("_BlendTex", t);
-                Graphics.Blit(src, dest, material);
-                Graphics.Blit(dest, src);
+                material.SetTexture("_BlendTex", d.camera.targetTexture);
+                Graphics.Blit(src, tmpDest, material, (int)d.blend);
+                var t = src;
+                src = tmpDest;
+                tmpDest = t;
             });
+
+            Graphics.Blit(src, dest);
+
+            RenderTexture.ReleaseTemporary(tmp);
         }
         else
         {
