@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: MultiCameraToCamera
-  m_Shader: {fileID: 4800000, guid: 3b46131fff14504408e42660684b36fc, type: 3}
+  m_Shader: {fileID: 4800000, guid: c173e6154cb0ad34da1f8f5f5a7a6617, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_CustomRenderQueue: -1
