@@ -112,6 +112,12 @@ static class Util {
         return ret;
     }
 
+    public static T EnumRandom<T>()
+    {
+        var values = System.Enum.GetValues(typeof(T));
+        return (T)values.GetValue(Random.Range(0, values.Length));
+    }
+
 
     [System.Serializable]
     public class Stopwatch

@@ -83,11 +83,15 @@ public static class GUIUtil
         }
         else if (type.IsEnum) func = (Func<T>)(() =>
         {
-            var values = Enum.GetValues(type).OfType<T>().Select(value => value.ToString()).ToArray();
-            return (T)((object)GUILayout.SelectionGrid(
-                (int)((object)v),
+            var enumValues = Enum.GetValues(type).OfType<T>().ToList();
+            var values = enumValues.Select(value => value.ToString()).ToArray();
+            var idx = enumValues.IndexOf(v);
+            idx = GUILayout.SelectionGrid(
+                idx,
                 values,
-                values.Length));
+                values.Length);
+
+            return enumValues.ElementAtOrDefault(idx);
         });
 
         T ret = default(T);
