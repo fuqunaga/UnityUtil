@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 
@@ -25,20 +24,25 @@ namespace PrefsWrapper
     {
         public PrefsFloat(string key, float defaultValue = default(float)) : base(key, defaultValue) { }
 
-        public void OnGUISlider(string label = null) { OnGUISlider(0f, 1f, label); }
-        public void OnGUISlider(float min, float max, string label = null)
+        public bool OnGUISlider(string label = null) { return OnGUISlider(0f, 1f, label); }
+        public bool OnGUISlider(float min, float max, string label = null)
         {
-            OnGUIwithButton(() =>
+            return OnGUIwithButton(() =>
             {
                 var v = Get();
+                var prev_v = v;
 
                 GUILayout.Label(label ?? key);
 
                 v = GUIUtil.Slider(v, min, max);
                 GUILayout.FlexibleSpace();
 
-                Set(v);
+                var changed = !prev_v.Equals(v);
 
+                if ( changed )
+                    Set(v);
+
+                return changed;
             });
         }
     }
@@ -87,21 +91,21 @@ namespace PrefsWrapper
 
         public override void Delete() { PlayerPrefsVector<T>.DeleteKey(key); }
 
-        protected override void _OnGUI(string key, string label, T defaultValue)
+        protected override bool _OnGUI(string key, string label, T defaultValue)
         {
-            PlayerPrefsVector<T>.OnGUI(key, label, defaultValue);
+            return PlayerPrefsVector<T>.OnGUI(key, label, defaultValue);
         }
 
-        public void OnGUISlider(string label = null)
+        public bool OnGUISlider(string label = null)
         {
-            OnGUISlider(
+            return OnGUISlider(
                 (T)typeof(T).InvokeMember("zero", BindingFlags.Static | BindingFlags.GetProperty, null, null, null),
                 (T)typeof(T).InvokeMember("one", BindingFlags.Static | BindingFlags.GetProperty, null, null, null),
                 label);
         }
-        public void OnGUISlider(T min, T max, string label = null, string[] elementLabels = null)
+        public bool OnGUISlider(T min, T max, string label = null, string[] elementLabels = null)
         {
-            OnGUIwithButton(() => foldOpen = PlayerPrefsVector<T>.OnGUISlider(key, label, foldOpen, defaultValue, min, max, elementLabels));
+            return OnGUIwithButton(() => PlayerPrefsVector<T>.OnGUISlider(key, label, ref foldOpen, defaultValue, min, max, elementLabels));
         }
     }
 
@@ -151,23 +155,24 @@ namespace PrefsWrapper
             PlayerPrefsVector<Vector4>.Set(key, ToVector4(c));
         }
 
-        protected override void _OnGUI(string key, string label = null, Color defaultValue = default(Color))
+        protected override bool _OnGUI(string key, string label = null, Color defaultValue = default(Color))
         {
             throw new NotImplementedException();
         }
 
         static readonly string[] _elementLabels = new[] { "H", "S", "V", "A" };
 
-        public void OnGUISlider(string label = null)
+        public bool OnGUISlider(string label = null)
         {
 
-            OnGUIwithButton(() => {
-                foldOpen = PlayerPrefsVector<Vector4>.OnGUISlider(key, label, foldOpen, defaultValue, Vector4.zero, Vector4.one, _elementLabels);
+            return OnGUIwithButton(() => {
+                var changed = PlayerPrefsVector<Vector4>.OnGUISlider(key, label, ref foldOpen, defaultValue, Vector4.zero, Vector4.one, _elementLabels);
 
                 var col = GUI.color;
                 GUI.color = Get();
                 GUILayout.Label("■■■");
                 GUI.color = col;
+                return changed;
             });
         }
     }
@@ -182,9 +187,9 @@ namespace PrefsWrapper
 
         public override void Delete() { PlayerPrefs.DeleteKey(key); }
 
-        protected override void _OnGUI(string key, string label = null, T defaultValue = default(T))
+        protected override bool _OnGUI(string key, string label = null, T defaultValue = default(T))
         {
-            PlayerPrefs<T>.OnGUI(key, label, defaultValue);
+            return PlayerPrefs<T>.OnGUI(key, label, defaultValue);
         }
     }
 
@@ -214,24 +219,28 @@ namespace PrefsWrapper
 
         public abstract void Delete();
 
-        protected abstract void _OnGUI(string key, string label = null, T defaultValue = default(T));
+        protected abstract bool _OnGUI(string key, string label = null, T defaultValue = default(T));
 
-        public void OnGUI(string label = null)
+        public bool OnGUI(string label = null)
         {
-            OnGUIwithButton(() => _OnGUI(key, label, defaultValue));
+            return OnGUIwithButton(() => _OnGUI(key, label, defaultValue));
         }
 
-        protected void OnGUIwithButton(System.Action onGUIFunc)
+        protected bool OnGUIwithButton(Func<bool> onGUIFunc)
         {
+            var changed = false;
             using (var h = new GUILayout.HorizontalScope())
             {
-                onGUIFunc();
+                changed = onGUIFunc();
 
                 if (GUILayout.Button("default", GUILayout.Width(60f)))
                 {
                     Set(defaultValue);
+                    changed = true;
                 }
             }
+
+            return changed;
         }
     }
 
@@ -277,9 +286,13 @@ namespace PrefsWrapper
             for (var i = 0; i < Rank; ++i) action(i);
         }
 
-        public static bool OnGUISlider(string key, string label, bool foldOpen, T defaultValue, T min, T max, string[] elementLabels = null)
+        public static bool OnGUISlider(string key, string label, ref bool foldOpen, T defaultValue, T min, T max, string[] elementLabels = null)
         {
             elementLabels = elementLabels ?? _defaultElementLabels;
+
+            var v = Get(key, defaultValue);
+            var prev_v = v;
+
             using (var h = new GUILayout.HorizontalScope())
             {
                 var foldStr = foldOpen ? "▼" : "▶";
@@ -287,7 +300,7 @@ namespace PrefsWrapper
                 //GUILayout.Label(label ?? key);
                 foldOpen ^= GUILayout.Button(foldStr + (label ?? key), GUIUtil.Style.FoldoutPanelStyle);
 
-                var v = Get(key, defaultValue);
+
 
                 if (foldOpen)
                 {
@@ -310,17 +323,29 @@ namespace PrefsWrapper
                 }
                 //GUILayout.FlexibleSpace();
 
-                Set(key, v);
             }
-            return foldOpen;
+
+
+            var changed = !prev_v.Equals(v);
+            if ( changed)
+                Set(key, v);
+
+            return changed;
         }
 
-        public static void OnGUI(string key, string label = null, T defaultValue = default(T))
+        public static bool OnGUI(string key, string label = null, T defaultValue = default(T))
         {
+            var changed = false;
             using (var h = new GUILayout.HorizontalScope())
             {
                 GUILayout.Label(label ?? key);
-                ForEachRank((i) => PlayerPrefs<float>.OnGUI(KeyWithIdx(key, i), "", Get(defaultValue, i)));
+                ForEachRank((i) =>
+                {
+                    var randChanged = PlayerPrefs<float>.OnGUI(KeyWithIdx(key, i), "", Get(defaultValue, i));
+                    changed = changed || randChanged;
+                });
+
+                return changed;
             }
         }
 
@@ -354,11 +379,24 @@ namespace PrefsWrapper
     public static class PlayerPrefs<T>
     {
 
-        public static void OnGUI(string key, string label = null, T defaultValue = default(T))
+        public static bool OnGUI(string key, string label = null, T defaultValue = default(T))
         {
-            if (!PlayerPrefs.HasKey(key)) Set(key, defaultValue);
+            var changed = false;
+            if (!PlayerPrefs.HasKey(key))
+            {
+                Set(key, defaultValue);
+                changed = true;
+            }
 
-            Set(key, GUIUtil.Field<T>(Get(key), label ?? key));
+            var prev = Get(key);
+            var next = GUIUtil.Field<T>(Get(key), label ?? key);
+            if ( !prev.Equals(next))
+            {
+                Set(key, next);
+                changed = true;
+            }
+
+            return changed;
         }
 
         static System.Type type
