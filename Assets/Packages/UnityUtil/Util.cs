@@ -194,16 +194,17 @@ public class KeepTimeFlag {
         return offset == 0f ? Get() : (Time.time - startTime) >= (switchTime + offset);
     }
 	public void Reset(){ Set(false); Set(true); }
+    	public void Reset(float switchTime) { this.switchTime = switchTime; Reset(); }	
 
 	public static implicit operator bool(KeepTimeFlag x){ return x.Get(); }
 	//public static operator bool(KeepTimeFlag x){return x; }
 	public bool raw{ get{ return startTime.HasValue;} }
 
-    // ‚ ‚Æremain•b‚ÅTrue‚É‚È‚é‚æ‚¤‚É‹­§
+    // ã‚ã¨remainç§’ã§Trueã«ãªã‚‹ã‚ˆã†ã«å¼·åˆ¶
     public void SetRemain(float remain)
     {
         // Time.time+remain - startTime > switchTime
-        // ‚æ‚è Time.time+remain - switchTime > startTime
+        // ã‚ˆã‚Š Time.time+remain - switchTime > startTime
         startTime = Time.time + remain - switchTime; ;
     }
 }
