@@ -18,27 +18,29 @@ float4 _Mul;
 
 float4 GetBaseColor(float2 uv)
 {
-	#if UNITY_UV_STARTS_AT_TOP
-	if (_MainTex_TexelSize.y >= 0){
+#if UNITY_UV_STARTS_AT_TOP
+	if (_MainTex_TexelSize.y < 0) {
 		uv.y = 1.0 - uv.y;
 	}
-	#endif
+#endif
 
 	return tex2D(_MainTex, uv);
 }
 
 float4 GetBlendColor(float2 uv)
 {
-	#if UNITY_UV_STARTS_AT_TOP
-	uv.y = 1.0 - uv.y;
-	#endif
-
 	return tex2D(_BlendTex, uv) * _Mul;
 }
 
 float4 frag_add(v2f_img IN) : COLOR {
 
 	return GetBaseColor(IN.uv) + GetBlendColor(IN.uv);
+}
+
+half4 frag_add_with_a(v2f_img IN) : COLOR
+{
+	half4 blend = GetBlendColor(IN.uv);
+	return GetBaseColor(IN.uv) + blend * blend.a;
 }
 
 float4 frag_blend(v2f_img IN) : COLOR 
@@ -67,6 +69,12 @@ SubShader {
 	Pass {
 		CGPROGRAM
 		#pragma fragment frag_blend
+		ENDCG
+	}
+
+	Pass{
+		CGPROGRAM
+		#pragma fragment frag_add_with_a
 		ENDCG
 	}
 }

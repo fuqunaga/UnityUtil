@@ -5,6 +5,7 @@ using System.Linq;
 
 [ExecuteInEditMode]
 [RequireComponent(typeof(Camera))]
+[System.Obsolete("use ApplyTexToCamera and CameraTexture.")]
 public class MultiCameraToCamera : MonoBehaviour
 {
     public enum BlendOp

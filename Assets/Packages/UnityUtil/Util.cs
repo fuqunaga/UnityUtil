@@ -1,9 +1,9 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
 
-static class Util {
+public static class Util {
 
 	static public Vector2 CrossKey(float scale=1f, bool extraEnable=true){
 		KeyCode[][] keys = new[]{
@@ -93,12 +93,6 @@ static class Util {
 		
 	}
 
-
-	public static int NamesToLayerMask(params string[] names)
-	{
-		return names.Aggregate(0, (s,name)=> s|=1<<LayerMask.NameToLayer(name));
-	}
-
     public static T SelectWithWait<T>(List<T> list, System.Func<T, float> getWait) where T : class
     {
         var total = list.Aggregate(0f, (s, data) => s + getWait(data));
@@ -135,90 +129,3 @@ static class Util {
     }
 }
 
-
-
-[System.Serializable]
-public class RandParam {
-	
-	public float offset =  0f;
-	public float randRange = 0f;
-
-    public float max { get { return offset + randRange; } }
-
-	public float value{ get{ return _value ?? Rand();} }
-	float? _value;
-	
-	public float Rand()
-	{
-		_value = offset + Random.Range(-1f,1f) * randRange;
-		return _value.Value;
-	}
-
-    public RandParam() { }
-    public RandParam(float offset) { this.offset = offset; }
-}
-
-[System.Serializable]
-public class KeepTimeFlag {
-	
-	public float switchTime =  5f;
-	bool flag = false;
-	float? startTime;
-
-	public KeepTimeFlag(float switchTime = 5f){ this.switchTime = switchTime; }
-
-	public void Set(bool f)
-	{
-		if ( f ) {
-			if ( !startTime.HasValue ) startTime = Time.time;
-			if ( (Time.time - startTime) >= switchTime )
-			{
-				flag = f;
-			}
-		}
-		else {
-			flag = f;
-			startTime = null;
-		}
-	}
-
-	public bool Get()
-	{
-		return flag;
-	}
-
-	public void Clear(){ Set(false); }
-
-	public bool Check(float offset=0f){ 
-        Set(true);
-        return offset == 0f ? Get() : (Time.time - startTime) >= (switchTime + offset);
-    }
-	public void Reset(){ Set(false); Set(true); }
-    	public void Reset(float switchTime) { this.switchTime = switchTime; Reset(); }	
-
-	public static implicit operator bool(KeepTimeFlag x){ return x.Get(); }
-	//public static operator bool(KeepTimeFlag x){return x; }
-	public bool raw{ get{ return startTime.HasValue;} }
-
-    // あとremain秒でTrueになるように強制
-    public void SetRemain(float remain)
-    {
-        // Time.time+remain - startTime > switchTime
-        // より Time.time+remain - switchTime > startTime
-        startTime = Time.time + remain - switchTime; ;
-    }
-}
-
-public class LazyHolder<T>
-{
-	T _value;
-	System.Func<T> getter;
-	public T value{ get{ return _value == null ? _value=getter() : _value; } }
-
-	public LazyHolder(System.Func<T> getter)
-	{
-		this.getter = getter;
-	}
-		
-	public static implicit operator T(LazyHolder<T> self){ return self.value; }
-}

@@ -251,13 +251,6 @@ namespace PrefsWrapper
         public _PrefsParam(string key) { this.key = key; }
     }
 
-    public static class PlayerPrefsColor
-    {
-    }
-
-
-
-
     public static class PlayerPrefsVector<T>
     {
         static readonly Dictionary<Type, int> _typeToRank = new Dictionary<Type, int>()
@@ -297,7 +290,6 @@ namespace PrefsWrapper
             {
                 var foldStr = foldOpen ? "▼" : "▶";
 
-                //GUILayout.Label(label ?? key);
                 foldOpen ^= GUILayout.Button(foldStr + (label ?? key), GUIUtil.Style.FoldoutPanelStyle);
 
 
@@ -308,7 +300,6 @@ namespace PrefsWrapper
                     {
                         using (var vs = new GUILayout.VerticalScope())
                         {
-                            //ForEachRank((i) => Set(ref v, i, GUIUtil.Slider(Get(v, i), Get(min, i), Get(max, i), elementLabels[i])));
                             ForEachRank((i) => GUILayout.Label(elementLabels[i]));
                         }
                         using (var vs = new GUILayout.VerticalScope())
@@ -322,7 +313,6 @@ namespace PrefsWrapper
                     ForEachRank((i) => PlayerPrefs<float>.OnGUI(KeyWithIdx(key, i), "", Get(defaultValue, i)));
                 }
                 //GUILayout.FlexibleSpace();
-
             }
 
 

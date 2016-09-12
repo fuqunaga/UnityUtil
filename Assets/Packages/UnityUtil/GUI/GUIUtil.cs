@@ -77,63 +77,89 @@ public static class GUIUtil
         }
     }
 
-    public static T Field<T>(T v, string label = "")
-    {
-        var type = typeof(T);
-        Func<T> func = (Func<T>)(() => (T)Convert.ChangeType(GUILayout.TextField(v.ToString()), type));
 
-        if (type == typeof(bool)) func = (Func<T>)(() => (T)Convert.ChangeType(GUILayout.Toggle(Convert.ToBoolean(v), ""), type));
-        if (type == typeof(Vector2))
-        {
-            func = (Func<T>)(() =>
+    public static T Field<T>(T v, string label = "") { string s = null;  return Field(v, ref s, label); }
+
+
+    static Dictionary<Type, Func<object, object>> _typeFuncTable = new Dictionary<Type, Func<object, object>>()
+    {
+        {typeof(bool),  (v) => Convert.ChangeType(GUILayout.Toggle(Convert.ToBoolean(v), ""), typeof(bool)) },
+        {typeof(Vector2), (v) =>
             {
+                var type = typeof(Vector2);
                 var vVec2 = (Vector2)Convert.ChangeType(v, type);
                 vVec2.x = Field(vVec2.x);
                 vVec2.y = Field(vVec2.y);
-                return (T)Convert.ChangeType(vVec2, type);
-            });
+                return Convert.ChangeType(vVec2, type);
+            }
         }
-        else if (type.IsEnum) func = (Func<T>)(() =>
+    };
+
+    static object StandardField<T>(T v, ref string unparsedStr)
+    {
+        var type = typeof(T);
+        unparsedStr = GUILayout.TextField(unparsedStr ?? v.ToString());
+        object ret = v;
+        try
         {
-            var enumValues = Enum.GetValues(type).OfType<T>().ToList();
+            ret = Convert.ChangeType(unparsedStr, type);
+        }
+        catch (Exception) { }
+        return ret;
+    }
+    static object EnumField<T>(T v)
+    {
+        var type = typeof(T);
+        var enumValues = Enum.GetValues(type).OfType<T>().ToList();
 
-            var isFlag = type.GetCustomAttributes(typeof(System.FlagsAttribute), true).Any();
-            if (isFlag)
+        var isFlag = type.GetCustomAttributes(typeof(System.FlagsAttribute), true).Any();
+        if (isFlag)
+        {
+            var flagV = Convert.ToUInt64(v);
+            enumValues.ForEach(value =>
             {
-                var flagV = Convert.ToUInt64(v);
-                enumValues.ForEach(value =>
+                var flag = Convert.ToUInt64(value);
+                if (flag > 0)
                 {
-                    var flag = Convert.ToUInt64(value);
-                    if (flag > 0)
-                    {
-                        var has = (flag & flagV) == flag;
-                        has = GUILayout.Toggle(has, value.ToString());
+                    var has = (flag & flagV) == flag;
+                    has = GUILayout.Toggle(has, value.ToString());
 
-                        flagV = has ? (flagV | flag) : (flagV & ~flag);
-                    }
-                });
+                    flagV = has ? (flagV | flag) : (flagV & ~flag);
+                }
+            });
 
-                v = (T)Enum.ToObject(type, flagV);
-            }
-            else
-            {
-                var valueNames = enumValues.Select(value => value.ToString()).ToArray();
-                var idx = enumValues.IndexOf(v);
-                idx = GUILayout.SelectionGrid(
-                    idx,
-                    valueNames,
-                    valueNames.Length);
-                v = enumValues.ElementAtOrDefault(idx);
-            }
-            return v;
-        });
+            v = (T)Enum.ToObject(type, flagV);
+        }
+        else
+        {
+            var valueNames = enumValues.Select(value => value.ToString()).ToArray();
+            var idx = enumValues.IndexOf(v);
+            idx = GUILayout.SelectionGrid(
+                idx,
+                valueNames,
+                valueNames.Length);
+            v = enumValues.ElementAtOrDefault(idx);
+        }
+        return v;
+    }
 
+    public static T Field<T>(T v, ref string unparsedStr, string label = "")
+    {
+        var type = typeof(T); 
         T ret = default(T);
 
         using (var h = new GUILayout.HorizontalScope())
         {
             if (!string.IsNullOrEmpty(label)) GUILayout.Label(label);
-            ret = func();
+
+            ret = (T)(_typeFuncTable.ContainsKey(type)
+                ? _typeFuncTable[type](v)
+                : ((type.IsEnum)
+                    ? EnumField(v)
+                    : StandardField(v, ref unparsedStr)
+                    )
+                );
+
         }
 
         return ret;
