@@ -39,7 +39,10 @@ public static class GUIUtil
 
         public void OnGUI()
         {
-            Values.ToList().ForEach(f => f.OnGUI());
+            using (var v = new GUILayout.VerticalScope())
+            {
+                Values.ToList().ForEach(f => f.OnGUI());
+            }
         }
     }
 
@@ -79,34 +82,117 @@ public static class GUIUtil
 
 
     public static T Field<T>(T v, string label = "") { string s = null;  return Field(v, ref s, label); }
-
-
-    static Dictionary<Type, Func<object, object>> _typeFuncTable = new Dictionary<Type, Func<object, object>>()
+    public static T Field<T>(T v, ref string unparsedStr, string label = "")
     {
-        {typeof(bool),  (v) => Convert.ChangeType(GUILayout.Toggle(Convert.ToBoolean(v), ""), typeof(bool)) },
-        {typeof(Vector2), (v) =>
-            {
-                var type = typeof(Vector2);
-                var vVec2 = (Vector2)Convert.ChangeType(v, type);
-                vVec2.x = Field(vVec2.x);
-                vVec2.y = Field(vVec2.y);
-                return Convert.ChangeType(vVec2, type);
-            }
+        var type = typeof(T);
+        T ret = default(T);
+
+        using (var h = new GUILayout.HorizontalScope())
+        {
+            if (!string.IsNullOrEmpty(label)) GUILayout.Label(label);
+
+            ret = (T)(_typeFuncTable.ContainsKey(type)
+                ? _typeFuncTable[type](v, ref unparsedStr)
+                : ((type.IsEnum)
+                    ? EnumField(v)
+                    : StandardField(v, ref unparsedStr)
+                    )
+                );
+
         }
+
+        return ret;
+    }
+
+
+    #region UnparsedStr Utility
+    const char UnparsedStrSeparator = '_';
+    static string[] SplitUnparsedStr(string unparsedStr, int elementNum)
+    {
+        string[] ret = null;
+        if (unparsedStr != null)
+        {
+            ret = unparsedStr.Split(UnparsedStrSeparator);
+            Array.Resize(ref ret, elementNum);
+        }
+        else {
+            ret = new string[elementNum];
+        }
+        return ret;
+    }
+    static string JoinUnparsedStr(string[] strs)
+    {
+        return string.Join(UnparsedStrSeparator.ToString(), strs);
+    }
+    #endregion
+
+    #region Field() Implement
+    delegate object FieldFunc(object v, ref string unparsedStr);
+    static object FieldFuncBool(object v, ref string unparsedStr) { return GUILayout.Toggle(Convert.ToBoolean(v), ""); }
+
+    static object FieldFuncVector<T>(object v, ref string unparsedStr)
+    {
+        var elementNum = AbstractVector.GetElementNum<T>();
+        var strs = SplitUnparsedStr(unparsedStr, elementNum);
+        for (var i = 0; i < elementNum; ++i)
+        {
+            var elem = Field(AbstractVector.GetAtIdx<T>(v,i), ref strs[i]);
+            AbstractVector.SetAtIdx<T>(v,i,elem);
+        }
+        unparsedStr = JoinUnparsedStr(strs);
+        return v;
+    }
+
+    static readonly Dictionary<Type, FieldFunc> _typeFuncTable = new Dictionary<Type, FieldFunc>()
+    {
+        {typeof(bool),  FieldFuncBool },
+        {typeof(Vector2), FieldFuncVector<Vector2> },
+        {typeof(Vector3), FieldFuncVector<Vector3> },
+        {typeof(Vector4), FieldFuncVector<Vector4> },
     };
 
     static object StandardField<T>(T v, ref string unparsedStr)
     {
-        var type = typeof(T);
-        unparsedStr = GUILayout.TextField(unparsedStr ?? v.ToString());
         object ret = v;
+
+        var type = typeof(T);
+
+        // フォーカスが外れたときにバリデーションしたい（unparsedStr=nullにすることでv.ToString()に更新される）
+        // うまい実装がわからないので簡易的にタブ時に行う
+        // マウスイベントも対応したいがこれより前のGUIでイベント食われたとき対応できないので一旦無しで
+        if ( Event.current.keyCode== KeyCode.Tab)
+        {
+            unparsedStr = null;
+        }
+
+
+        var hasUnparsedStr = !string.IsNullOrEmpty(unparsedStr);
+        var canParse = false;
         try
         {
-            ret = Convert.ChangeType(unparsedStr, type);
+            Convert.ChangeType(unparsedStr, type);
+            canParse = true; // unparsedStr has value only if ChangeType successed.
         }
         catch (Exception) { }
+
+        var color = (hasUnparsedStr && !canParse) ? Color.red : GUI.color;
+
+        using (var cs = new ColorScope(color))
+        {
+            unparsedStr = GUILayout.TextField(hasUnparsedStr ? unparsedStr : v.ToString(), GUILayout.MinWidth(70f));
+            try
+            {
+                ret = Convert.ChangeType(unparsedStr, type);
+                if ( ret.ToString() == unparsedStr) {
+                    unparsedStr = null;
+                }
+            }
+            catch (Exception) {
+            }
+        }
         return ret;
     }
+
     static object EnumField<T>(T v)
     {
         var type = typeof(T);
@@ -142,28 +228,82 @@ public static class GUIUtil
         }
         return v;
     }
+    #endregion
 
-    public static T Field<T>(T v, ref string unparsedStr, string label = "")
+    public static float Slider(float v, string label = "") { return Slider(v, 0f, 1f, label); }
+    public static float Slider(float v, ref string unparsedStr, string label = "") { return Slider(v, 0f, 1f, ref unparsedStr, label); }
+
+    public static T Slider<T>(T v, T min, T max, string label = "", string[] elementLabels = null)
     {
-        var type = typeof(T); 
-        T ret = default(T);
+        string unparsedStr = null;
+        return Slider(v, min, max, ref unparsedStr, label, elementLabels);
+    }
 
+    public static T Slider<T>(T v, T min, T max, ref string unparsedStr, string label = "", string[] elementLabels = null)
+    {
+        return (T)_typeSliderFuncTable[typeof(T)](v, min, max, ref unparsedStr, label, elementLabels);
+    }
+
+    #region Slider() Implement
+    delegate object SliderFunc(object v, object min, object max, ref string unparsedStr, string label = "", string[] elemLabels = null);
+
+    public static object SliderInt(object v, object min, object max, ref string unparsedStr, string label = "", string[] elemLabels = null)
+    {
+        return Mathf.FloorToInt((float)SliderFloat((float)(int)v, (float)(int)min, (float)(int)max, ref unparsedStr, label));
+    }
+
+    public static object SliderFloat(object v, object min, object max, ref string unparsedStr, string label = "", string[] elemLabels = null)
+    {
+        float ret = default(float);
         using (var h = new GUILayout.HorizontalScope())
         {
             if (!string.IsNullOrEmpty(label)) GUILayout.Label(label);
-
-            ret = (T)(_typeFuncTable.ContainsKey(type)
-                ? _typeFuncTable[type](v)
-                : ((type.IsEnum)
-                    ? EnumField(v)
-                    : StandardField(v, ref unparsedStr)
-                    )
-                );
-
+            ret = GUILayout.HorizontalSlider((float)v, (float)min, (float)max, GUILayout.MinWidth(200));
+            ret = Field(ret, ref unparsedStr);
         }
 
         return ret;
     }
+
+
+    static readonly string[] defaultElemLabels = new[] { "x", "y", "z", "w" };
+    static object SliderFuncVector<T>(object v, object min, object max, ref string unparsedStr, string label = "", string[] elemLabels = null)
+    {
+        var elementNum = AbstractVector.GetElementNum<T>();
+        var eLabels = elemLabels ?? defaultElemLabels;
+
+        using (var h0 = new GUILayout.HorizontalScope())
+        {
+            if (!string.IsNullOrEmpty(label)) GUILayout.Label(label);
+            using (var vertical = new GUILayout.VerticalScope())
+            {
+                var strs = SplitUnparsedStr(unparsedStr, elementNum);
+                for (var i = 0; i < elementNum; ++i)
+                {
+                    using (var h1 = new GUILayout.HorizontalScope())
+                    {
+                        var elem = Slider(AbstractVector.GetAtIdx<T>(v, i), AbstractVector.GetAtIdx<T>(min, i), AbstractVector.GetAtIdx<T>(max, i), ref strs[i], eLabels[i]);
+                        AbstractVector.SetAtIdx<T>(v, i, elem);
+                    }
+                }
+                unparsedStr = JoinUnparsedStr(strs);
+            }
+        }
+
+        return v;
+    }
+
+    static readonly Dictionary<Type, SliderFunc> _typeSliderFuncTable = new Dictionary<Type, SliderFunc>()
+    {
+        {typeof(int), SliderInt },
+        {typeof(float), SliderFloat },
+        {typeof(Vector2), SliderFuncVector<Vector2> },
+        {typeof(Vector3), SliderFuncVector<Vector3> },
+        {typeof(Vector4), SliderFuncVector<Vector4> },
+    };
+
+    #endregion
+
 
     public static int IntButton(int v, string label = "")
     {
@@ -176,60 +316,8 @@ public static class GUIUtil
         return v;
     }
 
-    public static int Slider(int v, int min, int max, string label = "")
-    {
-        return Mathf.FloorToInt(Slider((float)v, min, max, label));
-    }
 
-    public static float Slider(float v, string label = "") { return Slider(v, 0f, 1f, label); }
-    public static float Slider(float v, float min, float max, string label = "")
-    {
-        float ret = default(float);
-        using (var h = new GUILayout.HorizontalScope())
-        {
-            if (!string.IsNullOrEmpty(label)) GUILayout.Label(label);
-            ret = GUILayout.HorizontalSlider(v, min, max, GUILayout.MinWidth(200));
-            ret = Field(ret);
-        }
-
-        return ret;
-    }
-
-
-    static readonly string[] defaultElemLabels = new[] { "x", "y", "z" };
-    public static Vector3 Slider(Vector3 v, Vector3 min, Vector3 max, string label = "", string[] elemLabels = null)
-    {
-        var ret = default(Vector3);
-        var eLabels = elemLabels ?? defaultElemLabels;
-
-        using (var h0 = new GUILayout.HorizontalScope())
-        {
-            if (!string.IsNullOrEmpty(label)) GUILayout.Label(label);
-            using (var vertical = new GUILayout.VerticalScope())
-            {
-                for (var i = 0; i < 3; ++i)
-                {
-                    using (var h1 = new GUILayout.HorizontalScope())
-                    {
-                        GUILayout.Label(eLabels[i]);
-                        ret[i] = GUILayout.HorizontalSlider(v[i], min[i], max[i], GUILayout.MinWidth(200));
-                        ret[i] = Field(ret[i]);
-                    }
-                }
-            }
-        }
-
-        return ret;
-    }
-
-    public static Vector2 Vector2(Vector2 v, string label = "")
-    {
-        if (!string.IsNullOrEmpty(label)) GUILayout.Label(label);
-        return new Vector2(Field(v.x), Field(v.y));
-    }
-
-
-    public static void TexWindow(List<RenderTexture> texs, string label)
+    public static void TexWindow(List<Texture> texs, string label)
     {
         var offset = 20;
         var x = offset;
@@ -255,6 +343,8 @@ public static class GUIUtil
         });
     }
 
+
+
     public static void Indent(Action action) { Indent(1, action); }
     public static void Indent(int level, Action action)
     {
@@ -266,6 +356,21 @@ public static class GUIUtil
             {
                 action();
             }
+        }
+    }
+
+    public class ColorScope : IDisposable
+    {
+        Color _color;
+        public ColorScope(Color color)
+        {
+            _color = GUI.color;
+            GUI.color = color;
+        }
+
+        public void Dispose()
+        {
+            GUI.color = _color;
         }
     }
 }
