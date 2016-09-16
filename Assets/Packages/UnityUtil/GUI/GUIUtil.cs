@@ -317,34 +317,6 @@ public static class GUIUtil
     }
 
 
-    public static void TexWindow(List<Texture> texs, string label)
-    {
-        var offset = 20;
-        var x = offset;
-        var y = offset;
-        var hMax = 0;
-
-        GUI.Box(new Rect(0, 0, Screen.width, Screen.height), label, "Window");
-
-        texs.ForEach(tex =>
-        {
-            var w = tex.width;
-            var h = tex.height;
-            hMax = Mathf.Max(hMax, h);
-
-            if (x + w >= Screen.width - offset)
-            {
-                x = 0;
-                y += hMax + offset;
-                hMax = h;
-            }
-            GUI.DrawTexture(new Rect(x, y, w, h), tex, ScaleMode.ScaleToFit, false);
-            x += w + offset;
-        });
-    }
-
-
-
     public static void Indent(Action action) { Indent(1, action); }
     public static void Indent(int level, Action action)
     {

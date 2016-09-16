@@ -84,6 +84,11 @@ public class GUIUtilSample : GUISampleBase
                 _miscFold.OnGUI();
                 _int = GUIUtil.IntButton(_int, "IntButton");
 
+                GUIUtil.Indent(() =>
+                {
+                    GUILayout.Label("Indent");
+                });
+
                 using (var cs = new GUIUtil.ColorScope(Color.green))
                 {
                     GUILayout.Label("ColorScope");

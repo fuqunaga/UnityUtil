@@ -23,7 +23,6 @@ namespace PrefsWrapper
             {typeof(Vector2), new MethodSet { HasKey = PlayerPrefsVector<Vector2>.HasKey, DeleteKey = PlayerPrefsVector<Vector2>.DeleteKey, Get = PlayerPrefsVector<Vector2>.Get,  Set = PlayerPrefsVector<Vector2>.Set } },
             {typeof(Vector3), new MethodSet { HasKey = PlayerPrefsVector<Vector3>.HasKey, DeleteKey = PlayerPrefsVector<Vector3>.DeleteKey, Get = PlayerPrefsVector<Vector3>.Get,  Set = PlayerPrefsVector<Vector3>.Set } },
             {typeof(Vector4), new MethodSet { HasKey = PlayerPrefsVector<Vector4>.HasKey, DeleteKey = PlayerPrefsVector<Vector4>.DeleteKey, Get = PlayerPrefsVector<Vector4>.Get,  Set = PlayerPrefsVector<Vector4>.Set } },
-            {typeof(Color), new MethodSet { HasKey = PlayerPrefsVector<Vector4>.HasKey, DeleteKey = PlayerPrefsVector<Vector4>.DeleteKey, Get = PlayerPrefsVector<Vector4>.Get,  Set = PlayerPrefsVector<Vector4>.Set } },
         };
 
         static readonly MethodSet _methodSetStandard = new MethodSet()
