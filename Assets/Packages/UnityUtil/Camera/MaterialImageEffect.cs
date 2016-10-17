@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
-using System.Collections;
-using UnityEngine.Assertions;
 
 [ExecuteInEditMode]
-public class Blit : MonoBehaviour {
-
+[RequireComponent(typeof(Camera))]
+public class MaterialImageEffect : MonoBehaviour
+{
     public Material _material;
-    public int lod = 0;
+    public int _lod = 0;
+    public bool _destoryMaterial;
 
     void Start()
     {
@@ -16,9 +16,7 @@ public class Blit : MonoBehaviour {
 
     void OnRenderImage(RenderTexture src, RenderTexture dst)
     {
-        UpdateMaterialParam();
-
-        var div = 1 << lod;
+        var div = 1 << _lod;
 
         var tmp = RenderTexture.GetTemporary(src.width / div, src.height / div);
         Graphics.Blit(src, tmp, _material);
@@ -27,5 +25,11 @@ public class Blit : MonoBehaviour {
         RenderTexture.ReleaseTemporary(tmp);
     }
 
-    protected virtual void UpdateMaterialParam() { }
+    public void OnDestroy()
+    {
+        if (_destoryMaterial && (_material != null))
+        {
+            Destroy(_material);
+        }
+    }
 }
