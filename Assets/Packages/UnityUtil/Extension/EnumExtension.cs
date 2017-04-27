@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 static public class EnumExtension
 {
@@ -26,6 +28,11 @@ static public class EnumExtension
 
         ulong num = Convert.ToUInt64(value);
         return ((Convert.ToUInt64(variable) & num) == num);
+    }
 
+
+    public static List<T> GetValues<T>()
+    {
+        return Enum.GetValues(typeof(T)).Cast<T>().ToList();
     }
 }
