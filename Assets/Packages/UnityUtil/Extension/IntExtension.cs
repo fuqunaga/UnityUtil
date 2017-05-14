@@ -1,22 +1,23 @@
-﻿using UnityEngine;
-using System.Collections;
-
-static public class IntExtension
+﻿namespace UnityUtil
 {
-    static public void times(this int a, System.Action action)
-    {
-        for (var i = 0; i < a; ++i)
-        {
-            action();
-        }
-    }
 
-    static public void times(this int a, System.Action<int> action)
+    static public class IntExtension
     {
-        for (var i = 0; i < a; ++i)
+        static public void times(this int a, System.Action action)
         {
-            action(i);
+            for (var i = 0; i < a; ++i)
+            {
+                action();
+            }
         }
-    }
 
+        static public void times(this int a, System.Action<int> action)
+        {
+            for (var i = 0; i < a; ++i)
+            {
+                action(i);
+            }
+        }
+
+    }
 }

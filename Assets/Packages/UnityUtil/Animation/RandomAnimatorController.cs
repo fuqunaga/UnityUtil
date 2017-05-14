@@ -1,15 +1,21 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(Animator))]
-public class RandomAnimatorController : MonoBehaviour {
+namespace UnityUtil
+{
 
-    public RuntimeAnimatorController[] controllers;
+    [RequireComponent(typeof(Animator))]
+    public class RandomAnimatorController : MonoBehaviour
+    {
 
-	void Start () {
+        public RuntimeAnimatorController[] controllers;
 
-        GetComponent<Animator>().runtimeAnimatorController = controllers[Random.Range(0, controllers.Length)];
-	
-	}
+        void Start()
+        {
 
+            GetComponent<Animator>().runtimeAnimatorController = controllers[Random.Range(0, controllers.Length)];
+
+        }
+
+    }
 }

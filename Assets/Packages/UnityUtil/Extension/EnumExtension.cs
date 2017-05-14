@@ -2,37 +2,41 @@
 using System.Collections.Generic;
 using System.Linq;
 
-static public class EnumExtension
+namespace UnityUtil
 {
-    /// <summary>
-    /// Check to see if a flags enumeration has a specific flag set.
-    /// </summary>
-    /// <param name="variable">Flags enumeration to check</param>
-    /// <param name="value">Flag to check for</param>
-    /// <returns></returns>
-    public static bool HasFlag(this Enum variable, Enum value)
+
+    static public class EnumExtension
     {
-        if (variable == null)
-            return false;
-
-        if (value == null)
-            throw new ArgumentNullException("value");
-
-        // Not as good as the .NET 4 version of this function, but should be good enough
-        if (!Enum.IsDefined(variable.GetType(), value))
+        /// <summary>
+        /// Check to see if a flags enumeration has a specific flag set.
+        /// </summary>
+        /// <param name="variable">Flags enumeration to check</param>
+        /// <param name="value">Flag to check for</param>
+        /// <returns></returns>
+        public static bool HasFlag(this Enum variable, Enum value)
         {
-            throw new ArgumentException(string.Format(
-                "Enumeration type mismatch.  The flag is of type '{0}', was expecting '{1}'.",
-                value.GetType(), variable.GetType()));
+            if (variable == null)
+                return false;
+
+            if (value == null)
+                throw new ArgumentNullException("value");
+
+            // Not as good as the .NET 4 version of this function, but should be good enough
+            if (!Enum.IsDefined(variable.GetType(), value))
+            {
+                throw new ArgumentException(string.Format(
+                    "Enumeration type mismatch.  The flag is of type '{0}', was expecting '{1}'.",
+                    value.GetType(), variable.GetType()));
+            }
+
+            ulong num = Convert.ToUInt64(value);
+            return ((Convert.ToUInt64(variable) & num) == num);
         }
 
-        ulong num = Convert.ToUInt64(value);
-        return ((Convert.ToUInt64(variable) & num) == num);
-    }
 
-
-    public static List<T> GetValues<T>()
-    {
-        return Enum.GetValues(typeof(T)).Cast<T>().ToList();
+        public static List<T> GetValues<T>()
+        {
+            return Enum.GetValues(typeof(T)).Cast<T>().ToList();
+        }
     }
 }

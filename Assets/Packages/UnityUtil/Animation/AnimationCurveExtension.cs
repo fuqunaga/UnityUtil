@@ -2,12 +2,16 @@
 using System.Collections;
 using System.Linq;
 
-static public class AnimationCurveExtension
+namespace UnityUtil
 {
 
-    static public float LastTime(this AnimationCurve curve)
+    static public class AnimationCurveExtension
     {
-        return curve.keys.Last().time;
+
+        static public float LastTime(this AnimationCurve curve)
+        {
+            return curve.keys.Last().time;
+        }
     }
 
 }

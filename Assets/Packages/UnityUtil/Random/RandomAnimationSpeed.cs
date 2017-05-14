@@ -2,14 +2,20 @@
 using System.Collections;
 using System.Linq;
 
-public class RandomAnimationSpeed : MonoBehaviour {
+namespace UnityUtil
+{
 
-    public RandFloat _speed = new RandFloat(1f, 1f);
+    public class RandomAnimationSpeed : MonoBehaviour
+    {
 
-	void Start () {
+        public RandFloat _speed = new RandFloat(1f, 1f);
 
-        transform.GetComponentsAll<Animator>().ToList().ForEach(a => a.speed = _speed.Calc());
+        void Start()
+        {
+
+            transform.GetComponentsAll<Animator>().ToList().ForEach(a => a.speed = _speed.Calc());
+
+        }
 
     }
-	
 }

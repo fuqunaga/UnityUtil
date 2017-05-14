@@ -1,18 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+namespace UnityUtil
+{
 
-[RequireComponent(typeof(Animator))]
-public class AnimatorStarter : MonoBehaviour {
+    [RequireComponent(typeof(Animator))]
+    public class AnimatorStarter : MonoBehaviour
+    {
 
-    public string trigger;
+        public string trigger;
 
-	void Start () {
-        if ( !string.IsNullOrEmpty(trigger))
+        void Start()
         {
-            GetComponent<Animator>().SetTrigger(trigger);
+            if (!string.IsNullOrEmpty(trigger))
+            {
+                GetComponent<Animator>().SetTrigger(trigger);
+            }
+
         }
-	
-	}
-	
+
+    }
 }

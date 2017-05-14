@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
-public class RandomTexture : RandomForMaterialProperty<Texture>
+namespace UnityUtil
 {
+    public class RandomTexture : RandomForMaterialProperty<Texture>
+    {
+    }
 }

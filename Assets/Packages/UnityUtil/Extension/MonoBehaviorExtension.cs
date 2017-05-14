@@ -1,17 +1,20 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-static public class MonoBehaviourExtension
+namespace UnityUtil
 {
-    public static GameObject InstantiateChild(this MonoBehaviour mono, Object original)
-    { 
-        return mono.InstantiateChild(original, Vector3.zero, Quaternion.identity); 
-    }
 
-    public static GameObject InstantiateChild(this MonoBehaviour me, Object original, Vector3 pos, Quaternion rot)
+    static public class MonoBehaviourExtension
     {
-        var go = Object.Instantiate(original, pos, rot) as GameObject;
-        if (go) go.transform.SetParent(me.transform);
-        return go;
+        public static GameObject InstantiateChild(this MonoBehaviour mono, Object original)
+        {
+            return mono.InstantiateChild(original, Vector3.zero, Quaternion.identity);
+        }
+
+        public static GameObject InstantiateChild(this MonoBehaviour me, Object original, Vector3 pos, Quaternion rot)
+        {
+            var go = Object.Instantiate(original, pos, rot) as GameObject;
+            if (go) go.transform.SetParent(me.transform);
+            return go;
+        }
     }
 }

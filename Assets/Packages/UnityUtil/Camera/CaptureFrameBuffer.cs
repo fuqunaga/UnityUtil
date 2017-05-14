@@ -1,12 +1,15 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-[ExecuteInEditMode]
-public class CaptureFrameBuffer : CameraTexture
+namespace UnityUtil
 {
-    public void OnRenderImage(RenderTexture source, RenderTexture destination)
+
+    [ExecuteInEditMode]
+    public class CaptureFrameBuffer : CameraTexture
     {
-        Graphics.Blit(source, destination);
-        Graphics.Blit(source, tex);
+        public void OnRenderImage(RenderTexture source, RenderTexture destination)
+        {
+            Graphics.Blit(source, destination);
+            Graphics.Blit(source, tex);
+        }
     }
 }

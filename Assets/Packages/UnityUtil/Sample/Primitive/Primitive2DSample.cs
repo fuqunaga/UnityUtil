@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using Primitive2D;
+using UnityUtil.Primitive2D;
 
 public class Primitive2DSample : MonoBehaviour {
 

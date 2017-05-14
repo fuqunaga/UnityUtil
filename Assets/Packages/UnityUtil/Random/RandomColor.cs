@@ -3,35 +3,39 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class RandomColor : RandomForMaterialProperty<Color>
+namespace UnityUtil
 {
-}
 
-
-public abstract class RandomForMaterialProperty<T> : MaterialPropertySetter<T>
-{
-    public List<T> _values;
-    protected override T CalcValue()
+    public class RandomColor : RandomForMaterialProperty<Color>
     {
-        return _values.SelectRandom();
     }
-}
 
-public abstract class MaterialPropertySetter<T> : MonoBehaviour
-{
-    public string _name;
-    protected abstract T CalcValue();
 
-    void Start()
+    public abstract class RandomForMaterialProperty<T> : MaterialPropertySetter<T>
     {
-        var v = CalcValue();
-
-        var mpb = new MaterialPropertyBlock();
-        transform.GetComponentsAll<Renderer>().ToList().ForEach(r =>
+        public List<T> _values;
+        protected override T CalcValue()
         {
-            r.GetPropertyBlock(mpb);
-            mpb.Set(_name, v);
-            r.SetPropertyBlock(mpb);
-        });
+            return _values.SelectRandom();
+        }
+    }
+
+    public abstract class MaterialPropertySetter<T> : MonoBehaviour
+    {
+        public string _name;
+        protected abstract T CalcValue();
+
+        void Start()
+        {
+            var v = CalcValue();
+
+            var mpb = new MaterialPropertyBlock();
+            transform.GetComponentsAll<Renderer>().ToList().ForEach(r =>
+            {
+                r.GetPropertyBlock(mpb);
+                mpb.Set(_name, v);
+                r.SetPropertyBlock(mpb);
+            });
+        }
     }
 }

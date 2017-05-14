@@ -1,20 +1,25 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class NoChildAutoDestroy : MonoBehaviour {
+namespace UnityUtil
+{
+    public class NoChildAutoDestroy : MonoBehaviour
+    {
 
-    // 一度子供ができるまで待つ
-    public bool waitChildGenerate;
+        // 一度子供ができるまで待つ
+        public bool waitChildGenerate;
 
-    bool isChildGenerated;
+        bool isChildGenerated;
 
-	void Update () {
-        var hasChild = transform.childCount > 0;
-        isChildGenerated |= hasChild;
-
-        if (!hasChild && (!waitChildGenerate || isChildGenerated))
+        void Update()
         {
-            Destroy(gameObject);
+            var hasChild = transform.childCount > 0;
+            isChildGenerated |= hasChild;
+
+            if (!hasChild && (!waitChildGenerate || isChildGenerated))
+            {
+                Destroy(gameObject);
+            }
         }
-	}
+    }
 }

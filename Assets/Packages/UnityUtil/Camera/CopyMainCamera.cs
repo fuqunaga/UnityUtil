@@ -1,20 +1,25 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CopyMainCamera : MonoBehaviour {
+namespace UnityUtil
+{
 
-    void Update()
+    public class CopyMainCamera : MonoBehaviour
     {
-        CopyMainCameraParameters();
+
+        void Update()
+        {
+            CopyMainCameraParameters();
+        }
+
+        void CopyMainCameraParameters()
+        {
+            var src = Camera.main;
+
+            GetComponent<Camera>().orthographicSize = src.orthographicSize;
+            transform.position = src.transform.position;
+
+        }
+
     }
-
-    void CopyMainCameraParameters()
-    {
-        var src = Camera.main;
-
-        GetComponent<Camera>().orthographicSize = src.orthographicSize;
-        transform.position = src.transform.position;
-
-    }
-
 }
