@@ -46,6 +46,8 @@ namespace UnityUtil
             Current.Enter();
         }
 
+        public bool Has(T key) => _states.ContainsKey(key);
+
         protected virtual void OnChange() { }
 
         protected U Current { get { return _states[_currentKey.Value]; } }
