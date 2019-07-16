@@ -12,12 +12,14 @@ namespace UnityUtil
 
         public KeepTimeFlag(float switchTime = 5f) { this.switchTime = switchTime; }
 
+        public float? time => Time.time - startTime;
+
         public void Set(bool f)
         {
             if (f)
             {
                 if (!startTime.HasValue) startTime = Time.time;
-                if ((Time.time - startTime) >= switchTime)
+                if (time >= switchTime)
                 {
                     flag = f;
                 }
@@ -38,7 +40,7 @@ namespace UnityUtil
         public bool Check(float offset = 0f)
         {
             Set(true);
-            return offset == 0f ? Get() : (Time.time - startTime) >= (switchTime + offset);
+            return offset == 0f ? Get() : time >= (switchTime + offset);
         }
         public void Reset() { Set(false); Set(true); }
         public void Reset(float switchTime) { this.switchTime = switchTime; Reset(); }
