@@ -41,7 +41,7 @@ namespace UnityUtil
 
         int currentIdx;
 
-        public virtual void DebugMenu()
+        public virtual void DoGUI()
         {
             var list = GetSortedList((T)this);
             var count = list.Count();
@@ -63,13 +63,13 @@ namespace UnityUtil
                 GUILayout.Space(16f);
                 using (var v = new GUILayout.VerticalScope())
                 {
-                    current.DebugMenuInternal();
+                    current.DoGUIInternal();
                 }
             }
 
             GUI.enabled = tmp;
         }
 
-        protected virtual void DebugMenuInternal() { }
+        protected virtual void DoGUIInternal() { }
     }
 }
