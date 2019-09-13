@@ -6,6 +6,12 @@ namespace UnityUtil
 {
     public static class Util
     {
+        static public void Swap<T>(ref T lhs, ref T rhs)
+        {
+            var tmp = lhs;
+            lhs = rhs;
+            rhs = lhs;
+        }
 
         static public Vector2 CrossKey(float scale = 1f, bool extraEnable = true)
         {
