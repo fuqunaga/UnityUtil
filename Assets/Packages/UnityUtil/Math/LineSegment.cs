@@ -1,12 +1,20 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 
 namespace UnityUtil
 {
+    [Serializable]
     public struct LineSegment
     {
         public Vector2 start;
         public Vector2 end;
+
+        public override string ToString()
+        {
+            return $"({start},{end})";
+        }
+
 
         // 点との距離
         // https://qiita.com/boiledorange73/items/bcd4e150e7caa0210ee6
@@ -47,7 +55,7 @@ namespace UnityUtil
             var toEnd = end - start;
             var toPos = pos - start;
 
-            return Vector3.Cross(toEnd, toPos).z < 0f;
+            return Vector3.Cross(toEnd, toPos).z > 0f;
         }
 
         //交点を求める
