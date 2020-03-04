@@ -58,10 +58,10 @@ namespace UnityUtil
             var tmp = GUI.enabled;
             GUI.enabled = isTop;
 
-            using (var h = new GUILayout.HorizontalScope())
+            using (new GUILayout.HorizontalScope())
             {
                 GUILayout.Space(16f);
-                using (var v = new GUILayout.VerticalScope())
+                using (new GUILayout.VerticalScope())
                 {
                     current.DoGUIInternal();
                 }
