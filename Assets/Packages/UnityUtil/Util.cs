@@ -10,7 +10,7 @@ namespace UnityUtil
         {
             var tmp = lhs;
             lhs = rhs;
-            rhs = lhs;
+            rhs = tmp;
         }
 
         static public Vector2 CrossKey(float scale = 1f, bool extraEnable = true)
