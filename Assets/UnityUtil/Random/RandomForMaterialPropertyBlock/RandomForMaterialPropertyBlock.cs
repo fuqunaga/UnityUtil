@@ -1,15 +1,8 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace UnityUtil
 {
-
-    public class RandomColor : RandomForMaterialProperty<Color>
-    {
-    }
-
 
     public abstract class RandomForMaterialProperty<T> : MaterialPropertySetter<T>
     {
@@ -30,12 +23,12 @@ namespace UnityUtil
             var v = CalcValue();
 
             var mpb = new MaterialPropertyBlock();
-            transform.GetComponentsAll<Renderer>().ToList().ForEach(r =>
+            foreach(var r in transform.GetComponentsAll<Renderer>())
             {
                 r.GetPropertyBlock(mpb);
                 mpb.Set(_name, v);
                 r.SetPropertyBlock(mpb);
-            });
+            }
         }
     }
 }
