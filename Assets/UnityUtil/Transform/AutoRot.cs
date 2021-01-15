@@ -1,13 +1,11 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 namespace UnityUtil
 {
 
     public class AutoRot : MonoBehaviour
     {
-
-        public float speed;
+        public float speed = 30f;
 
         void Update()
         {
