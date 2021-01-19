@@ -8,9 +8,7 @@ namespace UnityUtil
     {
         static public void Swap<T>(ref T lhs, ref T rhs)
         {
-            var tmp = lhs;
-            lhs = rhs;
-            rhs = tmp;
+            (lhs, rhs) = (rhs, lhs);
         }
 
         static public T SelectRandomWithWeight<T>(List<T> list, System.Func<T, float> getWeight)
