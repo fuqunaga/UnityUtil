@@ -4,10 +4,10 @@ using UnityEngine;
 namespace UnityUtil
 {
 
-    public abstract class RandomForMaterialProperty<T> : MaterialPropertySetter<T>
+    public class RandomForMaterialProperty<T> : MaterialPropertySetter<T>
     {
         public List<T> _values;
-        protected override T CalcValue()
+        protected override T GetValue()
         {
             return _values.SelectRandom();
         }
@@ -16,11 +16,11 @@ namespace UnityUtil
     public abstract class MaterialPropertySetter<T> : MonoBehaviour
     {
         public string _name;
-        protected abstract T CalcValue();
+        protected abstract T GetValue();
 
         void Start()
         {
-            var v = CalcValue();
+            var v = GetValue();
 
             var mpb = new MaterialPropertyBlock();
             foreach(var r in transform.GetComponentsAll<Renderer>())

@@ -54,5 +54,40 @@ namespace UnityUtil
             return assembly.GetType(typeName);
 
         }
+
+        public static T SelectWithWait<T>(List<T> list, System.Func<T, float> getWait) where T : class
+        {
+            var total = list.Aggregate(0f, (s, data) => s + getWait(data));
+            var corsor = Random.value * total;
+            var ret = list.Find(data =>
+            {
+                corsor -= getWait(data);
+                return corsor <= 0f;
+            });
+
+            return ret;
+        }
+
+
+        [System.Serializable]
+        public class Stopwatch
+        {
+            public static Stopwatch StartNew()
+            {
+                var s = new Stopwatch();
+                s.Start();
+                return s;
+            }
+
+            public float? last;
+            protected float _elapsed;
+
+            protected float time { get { return Time.time; } }
+
+            public void Start() { last = time; }
+            public void Stop() { _elapsed += Elapsed; last = 0; }
+            public bool IsRunning { get { return last.HasValue; } }
+            public float Elapsed { get { return IsRunning ? time - last.Value : _elapsed; } }
+        }
     }
 }

@@ -16,32 +16,30 @@ namespace UnityUtil
         }
 
 
-        // 点との距離
-        // https://qiita.com/boiledorange73/items/bcd4e150e7caa0210ee6
-        public float Distance(Vector2 pos)
+        // p = (at+x1, bt+y1)
+        // https://zenn.dev/boiledorange73/articles/0037-js-distance-pt-seg
+        public Vector2 ClosestPoint(Vector2 pos)
         {
-            var x0 = pos.x;
-            var y0 = pos.y;
-            var x1 = start.x;
-            var y1 = start.y;
-            var x2 = end.x;
-            var y2 = end.y;
+            var ab = end - start;
+            var r2 = Vector2.Dot(ab, ab);
+            var tt = -Vector2.Dot(ab, start - pos);
 
-            var a = x2 - x1;
-            var b = y2 - y1;
-            var r2 = a * a + b * b;
-            var tt = -(a * (x1 - x0) + b * (y1 - y0));
-            if (tt < 0)
+            if (tt <= 0)
             {
-                return (x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0);
+                return start;
             }
-            if (tt > r2)
+            else if (tt >= r2)
             {
-                return (x2 - x0) * (x2 - x0) + (y2 - y0) * (y2 - y0);
+                return end;
             }
-            var f1 = a * (y1 - y0) - b * (x1 - x0);
-            return (f1 * f1) / r2;
+
+            var t = tt / r2;
+            return ab * t + start;
         }
+
+
+        public float Distance(Vector2 pos) => Vector2.Distance(ClosestPoint(pos), pos);
+
 
         public Vector2 CalcNormal(Vector2 pos)
         {

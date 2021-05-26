@@ -12,7 +12,7 @@ namespace UnityUtil
 
         protected virtual float Rand() { return Random.value; }
 
-        protected override Color CalcValue()
+        protected override Color GetValue()
         {
             Vector3 min = _min.ToHSV();
             Vector3 max = _max.ToHSV();

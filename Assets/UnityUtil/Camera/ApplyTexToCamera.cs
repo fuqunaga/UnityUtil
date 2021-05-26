@@ -59,9 +59,7 @@ namespace UnityUtil
                         material.SetTexture("_BlendTex", tex);
                         Graphics.Blit(t0, t1, material, (int)d.blend);
 
-                        var swap = t0;
-                        t0 = t1;
-                        t1 = swap;
+                        Util.Swap(ref t0, ref t1);
                     }
                 });
 
