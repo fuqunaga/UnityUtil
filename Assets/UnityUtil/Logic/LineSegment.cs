@@ -15,26 +15,20 @@ namespace UnityUtil
             return $"({start},{end})";
         }
 
+        public float ClosestPointRate(Vector2 pos)
+        {
+            var ab = end - start;
+            var r2 = Vector2.Dot(ab, ab);
+            var tt = -Vector2.Dot(ab, start - pos);
+            return Mathf.Clamp01(tt / r2);
+        }
 
         // p = (at+x1, bt+y1)
         // https://zenn.dev/boiledorange73/articles/0037-js-distance-pt-seg
         public Vector2 ClosestPoint(Vector2 pos)
         {
             var ab = end - start;
-            var r2 = Vector2.Dot(ab, ab);
-            var tt = -Vector2.Dot(ab, start - pos);
-
-            if (tt <= 0)
-            {
-                return start;
-            }
-            else if (tt >= r2)
-            {
-                return end;
-            }
-
-            var t = tt / r2;
-            return ab * t + start;
+            return ab * ClosestPointRate(pos) + start;
         }
 
 
