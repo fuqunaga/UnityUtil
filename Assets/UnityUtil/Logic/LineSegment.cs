@@ -7,8 +7,12 @@ namespace UnityUtil
     [Serializable]
     public struct LineSegment
     {
+        public static LineSegment Create(Vector2 start, Vector2 end) => new LineSegment() { start = start, end = end };
+
+
         public Vector2 start;
         public Vector2 end;
+
 
         public override string ToString()
         {
