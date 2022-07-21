@@ -1,0 +1,95 @@
+﻿using UnityEngine;
+// ReSharper disable InconsistentNaming
+
+namespace UnityUtil
+{
+    /// <summary>
+    /// UnityEngine.Random like random for instance
+    /// </summary>
+    public class CustomRandom
+    {
+        readonly System.Func<float> _randFunc;
+
+        public CustomRandom()
+        {
+            var rand = new System.Random(); // warn: not include 1.0. UnityEngine.Random.value includes 1.0
+            _randFunc = () => (float)rand.NextDouble();
+        }
+
+        public CustomRandom(int seed)
+        {
+            var rand = new System.Random(seed); // warn: not include 1.0. UnityEngine.Random.value includes 1.0
+            _randFunc = () => (float)rand.NextDouble();
+        }
+
+        public CustomRandom(System.Func<float> randFunc) => _randFunc = randFunc;
+
+
+        #region UnityEngine.Random like
+
+        public Quaternion rotation => Quaternion.Euler(value * 360f, value * 360f, value * 360f);
+
+        public Vector3 onUnitSphere
+        {
+            get
+            {
+                Vector3 ret;
+                do
+                {
+                    ret = (vector3 - Vector3.one * 0.5f).normalized;
+                } while (ret.sqrMagnitude == 0f);
+                return ret;
+            }
+        }
+
+        public Vector2 insideUnitCircle
+        {
+            get
+            {
+                Vector2 ret;
+                do
+                {
+                    ret = (vector2 - Vector2.one * 0.5f) * 2f;
+                } while (ret.sqrMagnitude > 1f);
+
+                return ret;
+            }
+        }
+
+        public Vector3 insideUnitSphere
+        {
+            get
+            {
+                Vector3 ret;
+                do
+                {
+                    ret = (vector3 - Vector3.one * 0.5f) * 2f;
+                } while (ret.sqrMagnitude > 1f);
+
+                return ret;
+            }
+        }
+
+        public float value => _randFunc();
+
+        public float Range(float min, float max) { return Mathf.Lerp(min, max, value); }
+
+        public int Range(int min, int max) { return Mathf.FloorToInt((max - min) * value * (1f - float.Epsilon)) + min; }
+
+        #endregion
+
+
+        #region Extra Methods
+
+        public int RandInt()
+        {
+            return Mathf.FloorToInt(value * int.MaxValue);
+        }
+
+        public Vector2 vector2 => new(value, value);
+
+        public Vector3 vector3 => new(value, value, value);
+
+        #endregion
+    }
+}
