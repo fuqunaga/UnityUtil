@@ -11,12 +11,12 @@ namespace UnityUtil
     public class OverrideSingletonMonoBehaviour<T> : MonoBehaviour
         where T : OverrideSingletonMonoBehaviour<T>
     {
-        #region static
+        #region Static
 
         protected static readonly List<T> Instances = new();
         public static T Instance => GetSortedList(Instances.First()).First();
 
-        private static IOrderedEnumerable<T> GetSortedList(T sample)
+        private static IEnumerable<T> GetSortedList(T sample)
         {
             Instances.RemoveAll(ins => ins == null);
             return Instances.Where(sample.IsKeyEqual).OrderByDescending(ins => ins.priority);
@@ -48,7 +48,7 @@ namespace UnityUtil
         public int priority;
         
         private List<T> _sortedList;
-        private List<T> SortedList => _sortedList ??= GetSortedList((T)this).ToList();
+        protected List<T> SortedList => _sortedList ??= GetSortedList((T)this).ToList();
         
         // 同じT内でも種類を分けたいときに指定
         protected virtual bool IsKeyEqual(T other) => true;
@@ -61,13 +61,13 @@ namespace UnityUtil
 
         protected virtual void OnDestroy() => Remove((T)this);
 
-        void ClearList() => _sortedList = null;
+        protected void ClearList() => _sortedList = null;
 
-        int _currentIdx;
+        protected int currentIdx;
 
-        T GetCurrent()
+        protected T GetCurrent()
         {
-            return SortedList.ElementAt(Mathf.Min(_currentIdx, SortedList.Count - 1));
+            return SortedList.ElementAt(Mathf.Min(currentIdx, SortedList.Count - 1));
         }
     }
 }

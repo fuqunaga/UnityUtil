@@ -7,10 +7,12 @@ namespace UnityUtil
 
     public static class TransformExtension
     {
-        public static IEnumerable<T> GetComponentsAll<T>(this Transform trans) where T : Component
-            => trans.GetChildren().SelectMany(GetComponentsAll<T>);
+        public static IEnumerable<T> GetComponentsAll<T>(this Transform trans) where T : Component 
+            => trans.GetComponents<T>()
+                .Concat(
+                    trans.GetChildren().SelectMany(GetComponentsAll<T>)
+                );
         
-
         public static IEnumerable<Transform> GetChildren(this Transform trans)
         {
             var num = trans.childCount;

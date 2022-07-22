@@ -1,8 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 namespace UnityUtil
 {
+    [Obsolete("Please use " + nameof(RandomHSVForMaterialPropertyBlock) + " instead.")]
+    public class RandomHSV{}
 
     public class RandomHSVForMaterialPropertyBlock : MaterialPropertySetter<Color>
     {
@@ -11,7 +15,7 @@ namespace UnityUtil
 
         [FormerlySerializedAs("_easingH")] public EasingType easingH;
 
-        protected virtual float Rand() { return Random.value; }
+        protected virtual float Rand() => Random.value;
 
         protected override Color GetValue()
         {
