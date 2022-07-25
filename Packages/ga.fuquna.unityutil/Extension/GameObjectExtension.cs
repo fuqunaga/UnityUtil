@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace UnityUtil
@@ -13,5 +15,11 @@ namespace UnityUtil
 
             return co;
         }
+
+        public static IEnumerable<GameObject> GetChildren(this GameObject gameObject) 
+            => gameObject.transform.GetChildren().Select(trans => trans.gameObject);
+
+        public static IEnumerable<GameObject> GetDescendants(this GameObject gameObject)
+            => gameObject.transform.GetDescendants().Select(trans => trans.gameObject);
     }
 }

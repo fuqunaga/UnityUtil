@@ -22,6 +22,18 @@ namespace UnityUtil
             }
         }
 
+        public static IEnumerable<Transform> GetDescendants(this Transform transform)
+        {
+            foreach (Transform trans in transform)
+            {
+                yield return trans;
+                foreach (var t in GetDescendants(trans))
+                {
+                    yield return t;
+                }
+            }
+        }
+
         public static void Reset(this Transform trans)
         {
             trans.position = Vector3.zero;
