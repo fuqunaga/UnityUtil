@@ -1,16 +1,16 @@
 {
-    "name": "ga.fuquna.unityutil",
-    "displayName": "UnityUtil",
-    "version": "1.1.0",
-    "unity": "2021.3",
-    "description": "Miscellaneous utilities for Unity",
-    "keywords": ["Utilities"],
-    "category": "Tool",
-    "dependencies": { 
-    },
-    "author": {
-        "name": "fuqunaga",
-        "email": "fukhid@gmail.com",
-        "url": "https://fuquna.ga"
-    }
+  "name": "ga.fuquna.unityutil",
+  "displayName": "UnityUtil",
+  "version": "1.2.0",
+  "unity": "2021.3",
+  "description": "Miscellaneous utilities for Unity",
+  "keywords": [
+    "Utilities"
+  ],
+  "category": "Tool",
+  "author": {
+    "name": "fuqunaga",
+    "email": "fukhid@gmail.com",
+    "url": "https://fuquna.ga"
+  }
 }
