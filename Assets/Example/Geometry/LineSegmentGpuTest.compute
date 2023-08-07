@@ -1,0 +1,55 @@
+#pragma kernel CSMain
+
+#include "Packages/ga.fuquna.unityutil/Geometry/LineSegment.hlsl"
+
+struct Output
+{
+    int hasHit;
+    float2 hitPoint;
+    float2 closestPoint0;
+    float2 closestPoint1;
+    float distance0;
+    float distance1;
+    int isLeft0;
+    int isLeft1;
+};
+
+float2 _Point;
+StructuredBuffer<LineSegment> _LineSegmentBuffer;
+RWStructuredBuffer<Output> _OutputBuffer;
+
+
+[numthreads(1,1,1)]
+void CSMain ()
+{
+    LineSegment line0 = _LineSegmentBuffer[0];
+    LineSegment line1 = _LineSegmentBuffer[1];
+
+    float2 hitPoint;
+    bool hit = CalcIntersection(line0, line1, hitPoint);
+    
+
+    float2 closestPoint0 = LineClosestPoint(_Point, line0);
+    float2 closestPoint1 = LineClosestPoint(_Point, line1);
+    
+
+    float distance0 = LineDistance(_Point, line0);
+    float distance1 = LineDistance(_Point, line1);
+
+    
+    float isLeft0 = IsLeft(_Point, line0);
+    float isLeft1 = IsLeft(_Point, line1);
+
+    
+    Output output = (Output)0;
+    output.hasHit = hit ? 1 : 0;
+    output.hitPoint = hitPoint;
+    output.closestPoint0 = closestPoint0;
+    output.closestPoint1 = closestPoint1;
+    output.distance0 = distance0;
+    output.distance1 = distance1;
+    output.isLeft0 = isLeft0;
+    output.isLeft1 = isLeft1;
+
+    _OutputBuffer[0] = output;
+}
