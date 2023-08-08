@@ -19,6 +19,17 @@ bool IsLeft(float2 pos, LineSegment ls)
 	return cross(float3(toEnd,0), float3(toPos,0)).z > 0;
 }
 
+bool IsRight(float2 pos, LineSegment ls)
+{
+	float2 start = ls.start;
+	float2 end = ls.end;
+
+	float2 toEnd = end - start;
+	float2 toPos = pos - start;
+
+	return cross(float3(toEnd,0), float3(toPos,0)).z < 0;
+}
+
 // 点との距離の二乗
 // https://zenn.dev/boiledorange73/articles/0037-js-distance-pt-seg
 float LineDistanceSq(float2 pos, LineSegment ls)
