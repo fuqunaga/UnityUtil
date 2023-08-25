@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using UnityEngine.Pool;
 using Random = UnityEngine.Random;
@@ -9,14 +10,13 @@ namespace UnityUtil
 
     public static class EnumerableExtension
     {
+        [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
         public static IEnumerable<IEnumerable<T>> Chunk<T>(this IEnumerable<T> source, int chunkSize)
         {
-            using var pool = ListPool<T>.Get(out var list);
-            list.AddRange(source);
-            
-            for(var i=0; i<list.Count; i+=chunkSize)
+            while (source.Any())
             {
-                yield return list.GetRange(i, chunkSize);
+                yield return source.Take(chunkSize);
+                source = source.Skip(chunkSize);
             }
         }
 
