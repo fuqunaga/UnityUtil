@@ -15,7 +15,7 @@ namespace UnityUtil
             {
                 if (_instance == null)
                 {
-                    _instance = (T)FindObjectOfType(typeof(T));
+                    _instance = FindFirstObjectByType<T>();
 
                     if (_instance == null)
                     {
@@ -32,9 +32,7 @@ namespace UnityUtil
             if (_first && _instance == null)
             {
                 _first = false;
-                _instance = (T)FindObjectOfType(typeof(T));
-
-                return _instance;
+                _instance = FindFirstObjectByType<T>();
             }
             return _instance;
         }
