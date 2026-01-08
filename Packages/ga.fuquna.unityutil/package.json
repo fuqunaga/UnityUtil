@@ -1,7 +1,7 @@
 {
   "name": "ga.fuquna.unityutil",
   "displayName": "UnityUtil",
-  "version": "1.3.4",
+  "version": "1.4.0",
   "unity": "2022.3",
   "description": "Miscellaneous utilities for Unity",
   "keywords": [
@@ -10,7 +10,7 @@
   "category": "Tool",
   "author": {
     "name": "fuqunaga",
-    "email": "fukhid@gmail.com",
-    "url": "https://fuquna.ga"
+    "url": "https://fuquna.ga",
+    "email": "fukhid@gmail.com"
   }
 }
