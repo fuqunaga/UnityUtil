@@ -11,10 +11,6 @@ namespace UnityUtil
         void LateUpdate();
         void FixedUpdate();
 
-        void OnCollisionEnter2D(Collision2D coll);
-        void OnCollisionStay2D(Collision2D coll);
-        void OnCollisionExit2D(Collision2D coll);
-
         string CurrentName { get; }
     }
 
@@ -23,15 +19,15 @@ namespace UnityUtil
         where TState : StateBase
     {
         public readonly Dictionary<TKey, TState> states = new();
-        TKey? _currentKey;
-        TKey? _prevKey;
+        private TKey? _currentKey;
+        private TKey? _prevKey;
 
         public TKey CurrentKey => _currentKey ?? throw new ArgumentNullException(nameof(_currentKey));
         public TKey PrevKey =>  _prevKey ?? throw new ArgumentNullException(nameof(_prevKey));
 
         public string CurrentName => CurrentKey.ToString();
 
-        public void Add(TKey key, TState state)
+        public virtual void Add(TKey key, TState state)
         {
             states.Add(key, state);
             if (_currentKey == null)
@@ -41,7 +37,7 @@ namespace UnityUtil
             }
         }
 
-        public void Change(TKey key)
+        public virtual void Change(TKey key)
         {
             Current.Exit();
             _prevKey = _currentKey;
@@ -54,20 +50,34 @@ namespace UnityUtil
 
         protected virtual void OnChange() { }
 
-        protected TState Current { get { return states[_currentKey.Value]; } }
-        protected TState Prev { get { return states[PrevKey]; } }
+        protected TState Current
+        {
+            get
+            {
+                if (_currentKey is { } key && states.TryGetValue(key, out var state))
+                {
+                    return state;
+                }
 
-        public void Update() { Current.Update(); }
-        public void LateUpdate() { Current.LateUpdate(); }
-        public void FixedUpdate() { Current.FixedUpdate(); }
+                return null;
+            }
+        }
 
-        public void OnCollisionEnter2D(Collision2D coll) { Current.OnCollisionEnter2D(coll); }
-        public void OnCollisionStay2D(Collision2D coll) { Current.OnCollisionStay2D(coll); }
-        public void OnCollisionExit2D(Collision2D coll) { Current.OnCollisionExit2D(coll); }
+        protected TState Prev {
+            get
+            {
+                if (_prevKey is { } key && states.TryGetValue(key, out var state))
+                {
+                    return state;
+                }
 
-        public void OnTriggerEnter2D(Collider2D col) { Current.OnTriggerEnter2D(col); }
-        public void OnTriggerStay2D(Collider2D col) { Current.OnTriggerStay2D(col); }
-        public void OnTriggerExit2D(Collider2D col) { Current.OnTriggerExit2D(col); }
+                return null;
+            }
+        }
+
+        public virtual void Update() => Current.Update();
+        public virtual void LateUpdate() => Current.LateUpdate();
+        public virtual void FixedUpdate() => Current.FixedUpdate();
     }
 
     public abstract class StateBase
@@ -77,14 +87,6 @@ namespace UnityUtil
         public virtual void Update() { }
         public virtual void LateUpdate() { }
         public virtual void FixedUpdate() { }
-
-        public virtual void OnCollisionEnter2D(Collision2D coll) { }
-        public virtual void OnCollisionStay2D(Collision2D coll) { }
-        public virtual void OnCollisionExit2D(Collision2D coll) { }
-
-        public virtual void OnTriggerEnter2D(Collider2D col) { }
-        public virtual void OnTriggerStay2D(Collider2D col) { }
-        public virtual void OnTriggerExit2D(Collider2D col) { }
     }
 
     public abstract class StateWithMonoBehaviour<T> : StateBase
