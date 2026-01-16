@@ -27,6 +27,13 @@ namespace UnityUtil
 
         public string CurrentName => CurrentKey.ToString();
 
+        public virtual void Clear()
+        {
+            states.Clear();
+            _currentKey = null;
+            _prevKey = null;
+        }
+        
         public virtual void Add(TKey key, TState state)
         {
             states.Add(key, state);
