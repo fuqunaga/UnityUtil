@@ -4,6 +4,14 @@ namespace UnityUtil
 {
     public static class RectExtension
     {
+        public static void Encapsulate(ref this Rect rect, Vector2 v)
+        {
+            if (v.x < rect.xMin) rect.xMin = v.x;
+            if (v.x > rect.xMax) rect.xMax = v.x;
+            if (v.y < rect.yMin) rect.yMin = v.y;
+            if (v.y > rect.yMax) rect.yMax = v.y;
+        }
+        
         public static void Encapsulate(ref this Rect rect, Rect other)
         {
             var min = rect.min;
