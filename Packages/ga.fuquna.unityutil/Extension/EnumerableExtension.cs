@@ -47,6 +47,14 @@ namespace UnityUtil
 
             return ret;
         }
+        
+        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source, Func<T, float> getPriority = null)
+        {
+            getPriority = getPriority ?? GetPriorityDefault;
+            return source.OrderBy(getPriority);
+            
+            float GetPriorityDefault(T x) => Random.value;
+        }
 
         public static TSource MinBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> selector, IComparer<TKey> comparer = null)
         {
